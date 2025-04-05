@@ -1,35 +1,66 @@
-# prova1
+# Prova 1 - Frameworks Modernos
 
-This template should help get you started developing with Vue 3 in Vite.
+🚀 Projeto Sistema de Reservas de Vagas da UNEMAT
 
-## Recommended IDE Setup
+## 📋 Pré-requisitos
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Node.js 18+
+- npm 9+ ou yarn 1.22+
+- Git
 
-## Customize configuration
+## 🛠 Configuração Recomendada
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### IDE
 
-## Project Setup
+[![VSCode](https://img.shields.io/badge/-VSCode-007ACC?style=flat&logo=visual-studio-code&logoColor=white)](https://code.visualstudio.com/) +
+[![Volar](https://img.shields.io/badge/-Volar-42b883?style=flat&logo=vue.js&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
 
-```sh
+⚠️ Desative a extensão Vetur se estiver instalada
+
+## ⚙️ Configuração do Projeto
+
+### Instalação de Dependências
+
+```bash
 npm install
-```
+# ou
+yarn
 
-### Compile and Hot-Reload for Development
-
-```sh
+#Ambiente de Desenvolvimento
 npm run dev
-```
 
-### Compile and Minify for Production
-
-```sh
+#Build para Produção
 npm run build
-```
 
-### Lint with [ESLint](https://eslint.org/)
+#Verificação de Código
+npm run lint  # ESLint
+npm run format  # Prettier (se configurado)
 
-```sh
-npm run lint
+#🧩 Estrutura do Projeto
+prova1/
+├── src/
+│   ├── assets/       # Recursos estáticos
+│   ├── components/   # Componentes Vue
+│   ├── views/        # Páginas/Rotas
+│   └── main.js       # Ponto de entrada
+├── vite.config.js    # Configuração do Vite
+└── package.json      # Dependências e scripts
+
+#📚 Documentação Útil
+Vue 3
+
+Vite
+
+ESLint
+
+Volar
+
+#📦 Dependências Principais
+Vue 3
+
+Vite 4
+
+ESLint
+
+Prettier
 ```
