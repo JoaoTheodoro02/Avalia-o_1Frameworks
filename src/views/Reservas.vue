@@ -1,8 +1,14 @@
 <template>
   <!-- Container principal com fundo em gradiente -->
-  <v-container fluid class="pa-8"
-    style="background: linear-gradient(to right, #0f2027, #203a43, #2c5364); min-height: 100vh; color: white;">
-
+  <v-container
+    fluid
+    class="pa-8"
+    style="
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      color: white;
+    "
+  >
     <!-- Cartão principal com conteúdo de reservas -->
     <v-card class="mx-auto" elevation="12" max-width="1000">
       <!-- Título do card + botão de exportar CSV -->
@@ -20,31 +26,64 @@
             <v-text-field v-model="filtroBloco" label="Filtrar por Bloco" clearable></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
-            <v-text-field v-model="filtroData" label="Filtrar por Data" type="date" clearable></v-text-field>
+            <v-text-field
+              v-model="filtroData"
+              label="Filtrar por Data"
+              type="date"
+              clearable
+            ></v-text-field>
           </v-col>
         </v-row>
 
         <!-- Tabela de reservas de carro -->
         <h3 class="reserva-titulo">🚗 Reservas de Carro</h3>
-        <v-data-table :headers="headers" :items="reservasCarro" :items-per-page="5" class="elevation-1 mt-2 mb-8">
+        <v-data-table
+          :headers="headers"
+          :items="reservasCarro"
+          :items-per-page="5"
+          class="elevation-1 mt-2 mb-8"
+        >
           <template #item.acao="{ item }">
-            <v-icon small class="mr-2" color="red" @click="cancelarReserva(item)">mdi-delete</v-icon>
+            <v-icon small class="mr-2" color="red" @click="cancelarReserva(item)"
+              >mdi-delete</v-icon
+            >
           </template>
         </v-data-table>
 
         <!-- Tabela de reservas de moto -->
         <h3 class="reserva-titulo">🏍️ Reservas de Moto</h3>
-        <v-data-table :headers="headers" :items="reservasMoto" :items-per-page="5" class="elevation-1 mt-2 mb-4">
+        <v-data-table
+          :headers="headers"
+          :items="reservasMoto"
+          :items-per-page="5"
+          class="elevation-1 mt-2 mb-4"
+        >
           <template #item.acao="{ item }">
-            <v-icon small class="mr-2" color="red" @click="cancelarReserva(item)">mdi-delete</v-icon>
+            <v-icon small class="mr-2" color="red" @click="cancelarReserva(item)"
+              >mdi-delete</v-icon
+            >
           </template>
         </v-data-table>
 
-        <!-- Botão de retorno à home -->
-        <v-btn color="primary" variant="text" class="mt-4" @click="router.push('/home')">
-          <v-icon start>mdi-arrow-left</v-icon>
-          Voltar para Home
-        </v-btn>
+        <!-- Botão de retorno à home com solução definitiva para mobile -->
+        <div
+          class="voltar-home-wrapper"
+          @click="handleHomeClick"
+          @touchstart.passive="handleTouchStart"
+          @touchend.passive="handleTouchEnd"
+        >
+          <v-btn
+            color="primary"
+            variant="text"
+            class="mt-4"
+            block
+            :class="{ 'btn-touch-active': isTouching }"
+            style="min-height: 48px"
+          >
+            <v-icon start>mdi-arrow-left</v-icon>
+            Voltar para Home
+          </v-btn>
+        </div>
       </v-card-text>
     </v-card>
 
@@ -64,6 +103,9 @@ import AssistenteVirtual from '@/components/AssistenteVirtual.vue'
 // Instância do roteador
 const router = useRouter()
 
+// Estado para feedback tátil
+const isTouching = ref(false)
+
 // Filtros de pesquisa por bloco e data
 const filtroBloco = ref('')
 const filtroData = ref('')
@@ -76,8 +118,43 @@ const headers = [
   { title: 'Data/Hora', key: 'dataHora' },
   { title: 'Vaga/Bloco', key: 'vaga' },
   { title: 'Tipo', key: 'tipo' },
-  { title: 'Ações', key: 'acao', sortable: false }
+  { title: 'Ações', key: 'acao', sortable: false },
 ]
+
+// Função para navegação robusta
+const handleHomeClick = () => {
+  // Método 1: Vue Router
+  try {
+    router.push('/home')
+    return
+  } catch (e) {
+    console.error('Método 1 falhou:', e)
+  }
+
+  // Método 2: window.location
+  try {
+    if (window && window.location) {
+      window.location.href = '/home'
+      return
+    }
+  } catch (e) {
+    console.error('Método 2 falhou:', e)
+  }
+
+  // Método 3: Recarregar a página
+  if (window && window.location) {
+    window.location.reload()
+  }
+}
+
+// Funções para feedback tátil
+const handleTouchStart = () => {
+  isTouching.value = true
+}
+
+const handleTouchEnd = () => {
+  isTouching.value = false
+}
 
 // Ao montar o componente, carrega as reservas do localStorage
 onMounted(() => {
@@ -93,33 +170,35 @@ function formatarDataHora(dataISO, hora) {
 
 // Computed com reservas formatadas para exibição
 const reservasFormatadas = computed(() => {
-  return reservas.value.map(r => ({
+  return reservas.value.map((r) => ({
     ...r,
-    dataHora: formatarDataHora(r.data, r.hora)
+    dataHora: formatarDataHora(r.data, r.hora),
   }))
 })
 
 // Filtra somente reservas de carro com os critérios
 const reservasCarro = computed(() =>
-  reservasFormatadas.value.filter(r =>
-    r.tipo === 'carro' &&
-    r.bloco.toLowerCase().includes(filtroBloco.value.toLowerCase()) &&
-    (!filtroData.value || r.data === filtroData.value)
-  )
+  reservasFormatadas.value.filter(
+    (r) =>
+      r.tipo === 'carro' &&
+      r.bloco.toLowerCase().includes(filtroBloco.value.toLowerCase()) &&
+      (!filtroData.value || r.data === filtroData.value),
+  ),
 )
 
 // Filtra somente reservas de moto com os critérios
 const reservasMoto = computed(() =>
-  reservasFormatadas.value.filter(r =>
-    r.tipo === 'moto' &&
-    r.bloco.toLowerCase().includes(filtroBloco.value.toLowerCase()) &&
-    (!filtroData.value || r.data === filtroData.value)
-  )
+  reservasFormatadas.value.filter(
+    (r) =>
+      r.tipo === 'moto' &&
+      r.bloco.toLowerCase().includes(filtroBloco.value.toLowerCase()) &&
+      (!filtroData.value || r.data === filtroData.value),
+  ),
 )
 
 // Remove reserva com base no ID
 function cancelarReserva(item) {
-  reservas.value = reservas.value.filter(r => r.id !== item.id)
+  reservas.value = reservas.value.filter((r) => r.id !== item.id)
   localStorage.setItem('reservas', JSON.stringify(reservas.value))
 }
 
@@ -127,7 +206,7 @@ function cancelarReserva(item) {
 function exportarCSV() {
   const dados = reservas.value
   const csv = ['Data,Hora,Bloco,Tipo']
-  dados.forEach(r => {
+  dados.forEach((r) => {
     csv.push(`${formatarDataHora(r.data)},${r.hora || ''},${r.bloco},${r.tipo}`)
   })
 
@@ -149,9 +228,45 @@ function exportarCSV() {
   background-color: #f5f5f5;
   color: #333;
   padding: 12px 16px;
-  border-left: 6px solid #1976D2;
+  border-left: 6px solid #1976d2;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-top: 30px;
+}
+
+/* Estilos para o botão home corrigido */
+.voltar-home-wrapper {
+  position: relative;
+  margin-top: 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Aumenta a área clicável em mobile */
+.voltar-home-wrapper::after {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+}
+
+/* Feedback visual ao tocar */
+.btn-touch-active {
+  transform: scale(0.98);
+  opacity: 0.9;
+  transition: all 0.1s ease;
+}
+
+/* Melhorias específicas para mobile */
+@media (max-width: 768px) {
+  .voltar-home-wrapper {
+    padding: 8px 0;
+  }
+
+  .v-btn {
+    font-size: 1rem;
+    padding: 14px 0;
+  }
 }
 </style>
